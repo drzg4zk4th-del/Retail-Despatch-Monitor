@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dispatch Pickruns Dashboard</title>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
 <style>
 
 *{
@@ -27,7 +30,6 @@ body{
   color:white;
   padding:20px;
   transition:0.3s;
-  box-shadow:2px 0 10px rgba(0,0,0,0.1);
 }
 
 .sidebar.collapsed{
@@ -36,7 +38,6 @@ body{
 
 .sidebar h2{
   margin-bottom:25px;
-  font-size:24px;
 }
 
 .sidebar button{
@@ -49,12 +50,11 @@ body{
   color:white;
   cursor:pointer;
   text-align:left;
-  transition:0.2s;
   font-weight:bold;
 }
 
 .sidebar button:hover{
-  background:#b95f7f;
+  background:#b85c7d;
 }
 
 .main{
@@ -67,11 +67,7 @@ body{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  margin-bottom:25px;
-}
-
-.topbar h1{
-  color:#9b4d6d;
+  margin-bottom:20px;
 }
 
 .toggle-btn{
@@ -81,21 +77,20 @@ body{
   padding:10px 15px;
   border-radius:10px;
   cursor:pointer;
-  font-size:18px;
 }
 
 .metrics{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:18px;
-  margin-bottom:25px;
+  gap:15px;
+  margin-bottom:20px;
 }
 
 .metric-card{
   background:white;
   border-radius:16px;
-  padding:22px;
-  box-shadow:0 3px 10px rgba(217,140,163,0.2);
+  padding:20px;
+  box-shadow:0 3px 10px rgba(0,0,0,0.08);
   border-left:6px solid #d98ca3;
 }
 
@@ -106,7 +101,7 @@ body{
 }
 
 .metric-card p{
-  font-size:30px;
+  font-size:28px;
   font-weight:bold;
   color:#b14f74;
 }
@@ -115,8 +110,8 @@ body{
   background:white;
   border-radius:16px;
   padding:20px;
-  margin-bottom:25px;
-  box-shadow:0 3px 10px rgba(217,140,163,0.15);
+  margin-bottom:20px;
+  box-shadow:0 3px 10px rgba(0,0,0,0.08);
 }
 
 .form-grid{
@@ -127,29 +122,23 @@ body{
 
 input,select{
   padding:12px;
+  border:1px solid #f1c6d5;
   border-radius:10px;
-  border:1px solid #efc6d2;
-  background:#fffafb;
-}
-
-input:focus,select:focus{
-  outline:none;
-  border-color:#d98ca3;
 }
 
 .add-btn{
   margin-top:15px;
-  padding:12px 22px;
-  border:none;
-  border-radius:10px;
   background:#d98ca3;
   color:white;
+  border:none;
+  padding:12px 20px;
+  border-radius:10px;
   cursor:pointer;
   font-weight:bold;
 }
 
 .add-btn:hover{
-  background:#c56f8d;
+  background:#b85c7d;
 }
 
 table{
@@ -158,13 +147,7 @@ table{
   background:white;
   border-radius:16px;
   overflow:hidden;
-  box-shadow:0 3px 10px rgba(217,140,163,0.15);
-}
-
-th,td{
-  padding:14px;
-  text-align:left;
-  border-bottom:1px solid #f3d6df;
+  box-shadow:0 3px 10px rgba(0,0,0,0.08);
 }
 
 th{
@@ -172,8 +155,14 @@ th{
   color:white;
 }
 
+th,td{
+  padding:14px;
+  border-bottom:1px solid #eee;
+  text-align:left;
+}
+
 tr:hover{
-  background:#fff5f7;
+  background:#fff0f4;
 }
 
 .hidden{
@@ -190,7 +179,7 @@ tr:hover{
 }
 
 .restore-btn{
-  background:#b56aa0;
+  background:#9b5de5;
   color:white;
   border:none;
   padding:8px 12px;
@@ -199,7 +188,7 @@ tr:hover{
 }
 
 .status-high{
-  color:#d62856;
+  color:#dc2626;
   font-weight:bold;
 }
 
@@ -209,7 +198,7 @@ tr:hover{
 }
 
 .status-low{
-  color:#2e8b57;
+  color:#059669;
   font-weight:bold;
 }
 
@@ -220,162 +209,147 @@ tr:hover{
 
 <div class="sidebar" id="sidebar">
 
-  <h2>Dispatch</h2>
+<h2>Dispatch</h2>
 
-  <button onclick="showPage('mainPage')">Main Dashboard</button>
+<button type="button" onclick="showPage('mainPage')">Main Dashboard</button>
 
-  <button onclick="showPage('archivePage')">Archive</button>
+<button type="button" onclick="showPage('archivePage')">Archive</button>
 
 </div>
 
 <div class="main">
 
-  <div class="topbar">
+<div class="topbar">
 
-    <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+<button class="toggle-btn" onclick="toggleSidebar()">☰</button>
 
-    <h1>Dispatch Pickruns Dashboard</h1>
+<h1>Dispatch Pickruns Dashboard</h1>
 
-  </div>
+</div>
 
-  <div id="mainPage">
+<div id="mainPage">
 
-    <div class="metrics">
+<div class="metrics">
 
-      <div class="metric-card">
-        <h3>Total Units To Be Despatched</h3>
-        <p>0</p>
-      </div>
+<div class="metric-card">
+<h3>Total Units To Be Despatched</h3>
+<p id="totalUnits">0</p>
+</div>
 
-      <div class="metric-card">
-        <h3>Total Pickruns</h3>
-        <p>0</p>
-      </div>
+<div class="metric-card">
+<h3>Total Pickruns</h3>
+<p id="totalPickruns">0</p>
+</div>
 
-      <div class="metric-card">
-        <h3>Oldest Pickrun</h3>
-        <p>0 Days</p>
-      </div>
+<div class="metric-card">
+<h3>Oldest Pickrun</h3>
+<p id="oldestPickrun">0 days ago</p>
+</div>
 
-      <div class="metric-card">
-        <h3>Average Discrepancies Left</h3>
-        <p>0</p>
-      </div>
+<div class="metric-card">
+<h3>Average Discrepancies Left</h3>
+<p id="avgDiscrepancies">0</p>
+</div>
 
-      <div class="metric-card">
-        <h3>Average Completion Time</h3>
-        <p>0 Days</p>
-      </div>
+<div class="metric-card">
+<h3>Average Completion Time</h3>
+<p id="avgCompletion">0 days</p>
+</div>
 
-    </div>
+</div>
 
-    <div class="form-section">
+<div class="form-section">
 
-      <div class="form-grid">
+<div class="form-grid">
 
-        <input type="text" placeholder="Pickrun Number">
+<input type="text" id="pickrunNumber" placeholder="Pickrun Number">
 
-        <input type="text" placeholder="Description">
+<input type="text" id="description" placeholder="Description">
 
-        <input type="number" placeholder="Qty">
+<input type="number" id="qty" placeholder="Qty">
 
-        <select>
-          <option>Low</option>
-          <option>Medium</option>
-          <option>High</option>
-        </select>
+<select id="urgency">
+<option value="Low">Low</option>
+<option value="Medium">Medium</option>
+<option value="High">High</option>
+</select>
 
-        <input type="number" placeholder="Discrepancies Left Qty">
+<input type="number" id="discrepancies" placeholder="Discrepancies Left Qty">
 
-      </div>
+</div>
 
-      <button class="add-btn">Add Pickrun</button>
+<button class="add-btn" onclick="addPickrun()">Add Pickrun</button>
 
-    </div>
+</div>
 
-    <table>
+<table>
 
-      <thead>
+<thead>
 
-        <tr>
-          <th>Pickrun Number</th>
-          <th>Description</th>
-          <th>Qty</th>
-          <th>Urgency</th>
-          <th>Date Created</th>
-          <th>Printed</th>
-          <th>Completed</th>
-          <th>Discrepancies Left Qty</th>
-          <th>Date Completed</th>
-          <th>Delete</th>
-        </tr>
+<tr>
+<th>Pickrun Number</th>
+<th>Description</th>
+<th>Qty</th>
+<th>Urgency</th>
+<th>Date Created</th>
+<th>Printed</th>
+<th>Completed</th>
+<th>Discrepancies Left Qty</th>
+<th>Date Completed</th>
+<th>Delete</th>
+</tr>
 
-      </thead>
+</thead>
 
-      <tbody>
+<tbody id="pickrunsTable"></tbody>
 
-        <tr>
-          <td>PR001</td>
-          <td>Bondi Restock</td>
-          <td>220</td>
-          <td class="status-high">High</td>
-          <td>22/05/2026</td>
-          <td><input type="checkbox"></td>
-          <td><input type="checkbox"></td>
-          <td>4</td>
-          <td>-</td>
-          <td><button class="delete-btn">Delete</button></td>
-        </tr>
+</table>
 
-      </tbody>
+</div>
 
-    </table>
+<div id="archivePage" class="hidden">
 
-  </div>
+<h2 style="margin-bottom:20px;">Archived Pickruns</h2>
 
-  <div id="archivePage" class="hidden">
+<table>
 
-    <h2 style="margin-bottom:20px;color:#9b4d6d;">Archived Pickruns</h2>
+<thead>
 
-    <table>
+<tr>
+<th>Pickrun Number</th>
+<th>Description</th>
+<th>Qty</th>
+<th>Urgency</th>
+<th>Date Created</th>
+<th>Date Completed</th>
+<th>Restore</th>
+<th>Delete</th>
+</tr>
 
-      <thead>
+</thead>
 
-        <tr>
-          <th>Pickrun Number</th>
-          <th>Description</th>
-          <th>Qty</th>
-          <th>Urgency</th>
-          <th>Date Created</th>
-          <th>Date Completed</th>
-          <th>Restore</th>
-          <th>Delete</th>
-        </tr>
+<tbody id="archiveTable"></tbody>
 
-      </thead>
+</table>
 
-      <tbody>
-
-        <tr>
-          <td>PR000</td>
-          <td>Sydney Outlet</td>
-          <td>140</td>
-          <td>Medium</td>
-          <td>18/05/2026</td>
-          <td>20/05/2026</td>
-          <td><button class="restore-btn">Restore</button></td>
-          <td><button class="delete-btn">Delete</button></td>
-        </tr>
-
-      </tbody>
-
-    </table>
-
-  </div>
+</div>
 
 </div>
 
 <script>
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD9nPDHQpkPgxeQYfe-JVWemQg6CjbCBYM",
+  authDomain: "seven-hills-dashboard-e973d.firebaseapp.com",
+  projectId: "seven-hills-dashboard-e973d",
+  storageBucket: "seven-hills-dashboard-e973d.firebasestorage.app",
+  messagingSenderId: "1016653351453",
+  appId: "1:1016653351453:web:a2a1f597844adf51ba54f4"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const db = firebase.firestore();
 
 function toggleSidebar(){
   document.getElementById('sidebar').classList.toggle('collapsed');
@@ -387,6 +361,212 @@ function showPage(pageId){
   document.getElementById('archivePage').classList.add('hidden');
 
   document.getElementById(pageId).classList.remove('hidden');
+}
+
+async function addPickrun(){
+
+  const pickrunNumber = document.getElementById('pickrunNumber').value;
+  const description = document.getElementById('description').value;
+  const qty = Number(document.getElementById('qty').value);
+  const urgency = document.getElementById('urgency').value;
+  const discrepancies = Number(document.getElementById('discrepancies').value || 0);
+
+  if(!pickrunNumber || !description || !qty){
+    alert('Please complete all fields');
+    return;
+  }
+
+  await db.collection('dispatch_pickruns').add({
+    pickrunNumber,
+    description,
+    qty,
+    urgency,
+    discrepancies,
+    printed:false,
+    completed:false,
+    archived:false,
+    dateCreated:new Date().toISOString(),
+    dateCompleted:null
+  });
+
+  document.getElementById('pickrunNumber').value = '';
+  document.getElementById('description').value = '';
+  document.getElementById('qty').value = '';
+  document.getElementById('discrepancies').value = '';
+}
+
+function formatDate(dateString){
+
+  if(!dateString) return '-';
+
+  return new Date(dateString).toLocaleDateString();
+}
+
+function daysBetween(start,end){
+
+  const ms = new Date(end) - new Date(start);
+
+  return Math.floor(ms / (1000*60*60*24));
+}
+
+db.collection('dispatch_pickruns').onSnapshot(snapshot=>{
+
+  const table = document.getElementById('pickrunsTable');
+  const archive = document.getElementById('archiveTable');
+
+  table.innerHTML = '';
+  archive.innerHTML = '';
+
+  let totalUnits = 0;
+  let totalPickruns = 0;
+  let totalDiscrepancies = 0;
+  let oldest = 0;
+  let completionDays = 0;
+  let completedCount = 0;
+
+  snapshot.forEach(doc=>{
+
+    const data = doc.data();
+    const id = doc.id;
+
+    const age = daysBetween(data.dateCreated,new Date());
+
+    if(!data.archived){
+
+      totalUnits += Number(data.qty || 0);
+      totalPickruns++;
+      totalDiscrepancies += Number(data.discrepancies || 0);
+
+      if(age > oldest){
+        oldest = age;
+      }
+
+      if(data.dateCompleted){
+        completionDays += daysBetween(data.dateCreated,data.dateCompleted);
+        completedCount++;
+      }
+
+      table.innerHTML += `
+      <tr>
+        <td>${data.pickrunNumber}</td>
+        <td>${data.description}</td>
+        <td>${data.qty}</td>
+        <td class="status-${data.urgency.toLowerCase()}">${data.urgency}</td>
+        <td>${formatDate(data.dateCreated)}</td>
+
+        <td>
+          <input type="checkbox"
+          ${data.printed ? 'checked' : ''}
+          onchange="togglePrinted('${id}',this.checked)">
+        </td>
+
+        <td>
+          <input type="checkbox"
+          ${data.completed ? 'checked' : ''}
+          onchange="toggleCompleted('${id}',this.checked)">
+        </td>
+
+        <td>${data.discrepancies}</td>
+
+        <td>${formatDate(data.dateCompleted)}</td>
+
+        <td>
+          <button class="delete-btn"
+          onclick="archivePickrun('${id}')">
+          Delete
+          </button>
+        </td>
+
+      </tr>
+      `;
+
+    } else {
+
+      archive.innerHTML += `
+      <tr>
+
+      <td>${data.pickrunNumber}</td>
+      <td>${data.description}</td>
+      <td>${data.qty}</td>
+      <td>${data.urgency}</td>
+      <td>${formatDate(data.dateCreated)}</td>
+      <td>${formatDate(data.dateCompleted)}</td>
+
+      <td>
+      <button class="restore-btn"
+      onclick="restorePickrun('${id}')">
+      Restore
+      </button>
+      </td>
+
+      <td>
+      <button class="delete-btn"
+      onclick="deleteForever('${id}')">
+      Delete
+      </button>
+      </td>
+
+      </tr>
+      `;
+    }
+
+  });
+
+  document.getElementById('totalUnits').innerText = totalUnits;
+
+  document.getElementById('totalPickruns').innerText = totalPickruns;
+
+  document.getElementById('oldestPickrun').innerText =
+    oldest + ' days ago';
+
+  document.getElementById('avgDiscrepancies').innerText =
+    totalPickruns > 0
+    ? (totalDiscrepancies / totalPickruns).toFixed(1)
+    : 0;
+
+  document.getElementById('avgCompletion').innerText =
+    completedCount > 0
+    ? (completionDays / completedCount).toFixed(1) + ' days'
+    : '0 days';
+
+});
+
+async function togglePrinted(id,value){
+
+  await db.collection('dispatch_pickruns').doc(id).update({
+    printed:value
+  });
+}
+
+async function toggleCompleted(id,value){
+
+  await db.collection('dispatch_pickruns').doc(id).update({
+    completed:value,
+    dateCompleted:value ? new Date().toISOString() : null
+  });
+}
+
+async function archivePickrun(id){
+
+  await db.collection('dispatch_pickruns').doc(id).update({
+    archived:true
+  });
+}
+
+async function restorePickrun(id){
+
+  await db.collection('dispatch_pickruns').doc(id).update({
+    archived:false
+  });
+}
+
+async function deleteForever(id){
+
+  const confirmed = confirm('Delete permanently?');
+
+  if(!confirmed) return;
+
+  await db.collection('dispatch_pickruns').doc(id).delete();
 }
 
 </script>
