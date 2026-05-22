@@ -449,6 +449,9 @@ FY Loading...
 <th>Urgency</th>
 <th>Order Type</th>
 <th>Date Created</th>
+<th>Printed</th>
+<th>Completed</th>
+<th>Discrepancies Left Qty</th>
 <th>Date Completed</th>
 <th>Restore</th>
 <th>Delete</th>
@@ -556,6 +559,9 @@ db.collection('dispatch_pickruns').onSnapshot(snapshot=>{
   let last7Days = 0;
   let monthlyDespatch = 0;
   let financialYearTotal = 0;
+
+  let archivedCompletedCount = 0;
+  let archivedDiscrepancies = 0;
 
   const now = new Date();
 
@@ -677,6 +683,9 @@ ${data.discrepancies}
 
       if(data.dateCompleted){
 
+        archivedDiscrepancies += Number(data.discrepancies || 0);
+        archivedCompletedCount++;
+
         const completedDate = new Date(data.dateCompleted);
 
         const diffDays =
@@ -703,14 +712,49 @@ ${data.discrepancies}
       }
 
       archive.innerHTML += `
-      <tr>
+      <tr style="
+      ${data.urgency === 'High'
+      ? 'background:#ffb3b3;color:#7a0000;font-weight:bold;'
+      : data.urgency === 'Medium'
+      ? 'background:#fff4d6;'
+      : ''}
+      ">
 
-      <td contenteditable='true' onblur="updateField('${id}','pickrunNumber',this.innerText)">${data.pickrunNumber}</td>
-      <td contenteditable='true' onblur="updateField('${id}','description',this.innerText)">${data.description}</td>
-      <td contenteditable='true' onblur="updateField('${id}','qty',this.innerText)">${data.qty}</td>
+      <td contenteditable='true' onblur="updateField('${id}','pickrunNumber',this.innerText)">
+      ${data.pickrunNumber}
+      </td>
+
+      <td contenteditable='true' onblur="updateField('${id}','description',this.innerText)">
+      ${data.description}
+      </td>
+
+      <td contenteditable='true' onblur="updateField('${id}','qty',this.innerText)">
+      ${data.qty}
+      </td>
+
       <td>${data.urgency}</td>
-<td>${data.orderType || '-'}</td>
-      
+
+      <td>${data.orderType || '-'}</td>
+
+      <td>${formatDate(data.dateCreated)}</td>
+
+      <td>
+      <input type="checkbox"
+      ${data.printed ? 'checked' : ''}
+      onchange="togglePrinted('${id}',this.checked)">
+      </td>
+
+      <td>
+      <input type="checkbox"
+      ${data.completed ? 'checked' : ''}
+      onchange="toggleCompleted('${id}',this.checked)">
+      </td>
+
+      <td contenteditable='true'
+      onblur="updateField('${id}','discrepancies',this.innerText)">
+      ${data.discrepancies || 0}
+      </td>
+
       <td>${formatDate(data.dateCompleted)}</td>
 
       <td>
@@ -741,8 +785,8 @@ ${data.discrepancies}
     oldest + ' days ago';
 
   document.getElementById('avgDiscrepancies').innerText =
-    totalPickruns > 0
-    ? (totalDiscrepancies / totalPickruns).toFixed(1)
+    archivedCompletedCount > 0
+    ? (archivedDiscrepancies / archivedCompletedCount).toFixed(1)
     : 0;
 
   document.getElementById('avgCompletion').innerText =
