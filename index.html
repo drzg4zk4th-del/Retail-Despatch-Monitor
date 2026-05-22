@@ -190,6 +190,10 @@ tr:hover{
 .status-high{
   color:#dc2626;
   font-weight:bold;
+  background:#ffe5e5;
+  padding:6px 10px;
+  border-radius:8px;
+  display:inline-block;
 }
 
 .status-medium{
@@ -256,6 +260,27 @@ tr:hover{
 <p id="avgCompletion">0 days</p>
 </div>
 
+
+<div class="metric-card">
+<h3>Yesterday Despatched</h3>
+<p id="yesterdayDespatched">0</p>
+</div>
+
+<div class="metric-card">
+<h3>Last 7 Days Despatched</h3>
+<p id="last7Days">0</p>
+</div>
+
+<div class="metric-card">
+<h3>Monthly Despatch</h3>
+<p id="monthlyDespatch">0</p>
+</div>
+
+<div class="metric-card">
+<h3>Current Financial Year Total</h3>
+<p id="financialYearTotal">0</p>
+</div>
+
 </div>
 
 <div class="form-section">
@@ -273,8 +298,6 @@ tr:hover{
 <option value="Medium">Medium</option>
 <option value="High">High</option>
 </select>
-
-<input type="number" id="discrepancies" placeholder="Discrepancies Left Qty">
 
 </div>
 
@@ -369,7 +392,7 @@ async function addPickrun(){
   const description = document.getElementById('description').value;
   const qty = Number(document.getElementById('qty').value);
   const urgency = document.getElementById('urgency').value;
-  const discrepancies = Number(document.getElementById('discrepancies').value || 0);
+  const discrepancies = 0;
 
   if(!pickrunNumber || !description || !qty){
     alert('Please complete all fields');
@@ -391,9 +414,7 @@ async function addPickrun(){
 
   document.getElementById('pickrunNumber').value = '';
   document.getElementById('description').value = '';
-  document.getElementById('qty').value = '';
-  document.getElementById('discrepancies').value = '';
-}
+  document.getElementById('qty').value = '';}
 
 function formatDate(dateString){
 
@@ -424,6 +445,24 @@ db.collection('dispatch_pickruns').onSnapshot(snapshot=>{
   let completionDays = 0;
   let completedCount = 0;
 
+  let yesterdayDespatched = 0;
+  let last7Days = 0;
+  let monthlyDespatch = 0;
+  let financialYearTotal = 0;
+
+  const now = new Date();
+
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+
+  const fyStart =
+    currentMonth >= 6
+    ? new Date(currentYear,6,1)
+    : new Date(currentYear-1,6,1);
+
+  const yesterday = new Date();
+  yesterday.setDate(now.getDate()-1);
+
   snapshot.forEach(doc=>{
 
     const data = doc.data();
@@ -447,12 +486,28 @@ db.collection('dispatch_pickruns').onSnapshot(snapshot=>{
       }
 
       table.innerHTML += `
-      <tr>
-        <td>${data.pickrunNumber}</td>
-        <td>${data.description}</td>
-        <td>${data.qty}</td>
-        <td class="status-${data.urgency.toLowerCase()}">${data.urgency}</td>
-        <td>${formatDate(data.dateCreated)}</td>
+      <tr style="
+      ${data.urgency === 'High'
+      ? 'background:#ffb3b3;color:#7a0000;font-weight:bold;'
+      : data.urgency === 'Medium'
+      ? 'background:#fff4d6;'
+      : ''}
+      ">
+        <td contenteditable='true' onblur="updateField('${id}','pickrunNumber',this.innerText)">${data.pickrunNumber}</td>
+        <td contenteditable='true' onblur="updateField('${id}','description',this.innerText)">${data.description}</td>
+        <td contenteditable='true' onblur="updateField('${id}','qty',this.innerText)">${data.qty}</td>
+        <td>
+<select class="status-${data.urgency.toLowerCase()}"
+onchange="updateField('${id}','urgency',this.value)">
+<option value="Low" ${data.urgency === 'Low' ? 'selected' : ''}>Low</option>
+<option value="Medium" ${data.urgency === 'Medium' ? 'selected' : ''}>Medium</option>
+<option value="High" ${data.urgency === 'High' ? 'selected' : ''}>High</option>
+</select>
+</td>
+        <td contenteditable='true'
+onblur="updateField('${id}','dateCreated',this.innerText)">
+${formatDate(data.dateCreated)}
+</td>
 
         <td>
           <input type="checkbox"
@@ -466,7 +521,7 @@ db.collection('dispatch_pickruns').onSnapshot(snapshot=>{
           onchange="toggleCompleted('${id}',this.checked)">
         </td>
 
-        <td>${data.discrepancies}</td>
+        <td contenteditable='true' onblur="updateField('${id}','discrepancies',this.innerText)">${data.discrepancies}</td>
 
         <td>${formatDate(data.dateCompleted)}</td>
 
@@ -482,12 +537,39 @@ db.collection('dispatch_pickruns').onSnapshot(snapshot=>{
 
     } else {
 
+      if(data.dateCompleted){
+
+        const completedDate = new Date(data.dateCompleted);
+
+        const diffDays =
+          Math.floor((now - completedDate)/(1000*60*60*24));
+
+        if(diffDays === 1){
+          yesterdayDespatched += Number(data.qty || 0);
+        }
+
+        if(diffDays <= 7){
+          last7Days += Number(data.qty || 0);
+        }
+
+        if(
+          completedDate.getMonth() === currentMonth &&
+          completedDate.getFullYear() === currentYear
+        ){
+          monthlyDespatch += Number(data.qty || 0);
+        }
+
+        if(completedDate >= fyStart){
+          financialYearTotal += Number(data.qty || 0);
+        }
+      }
+
       archive.innerHTML += `
       <tr>
 
-      <td>${data.pickrunNumber}</td>
-      <td>${data.description}</td>
-      <td>${data.qty}</td>
+      <td contenteditable='true' onblur="updateField('${id}','pickrunNumber',this.innerText)">${data.pickrunNumber}</td>
+      <td contenteditable='true' onblur="updateField('${id}','description',this.innerText)">${data.description}</td>
+      <td contenteditable='true' onblur="updateField('${id}','qty',this.innerText)">${data.qty}</td>
       <td>${data.urgency}</td>
       <td>${formatDate(data.dateCreated)}</td>
       <td>${formatDate(data.dateCompleted)}</td>
@@ -529,38 +611,61 @@ db.collection('dispatch_pickruns').onSnapshot(snapshot=>{
     ? (completionDays / completedCount).toFixed(1) + ' days'
     : '0 days';
 
+
+  document.getElementById('yesterdayDespatched').innerText =
+    yesterdayDespatched.toLocaleString();
+
+  document.getElementById('last7Days').innerText =
+    last7Days.toLocaleString();
+
+  document.getElementById('monthlyDespatch').innerText =
+    monthlyDespatch.toLocaleString();
+
+  document.getElementById('financialYearTotal').innerText =
+    financialYearTotal.toLocaleString();
+
+
 });
 
-async function togglePrinted(id,value){
+window.togglePrinted = async function(id,value){
 
   await db.collection('dispatch_pickruns').doc(id).update({
     printed:value
   });
 }
 
-async function toggleCompleted(id,value){
+window.toggleCompleted = async function(id,value){
 
   await db.collection('dispatch_pickruns').doc(id).update({
     completed:value,
+    archived:value,
     dateCompleted:value ? new Date().toISOString() : null
   });
 }
 
-async function archivePickrun(id){
+window.archivePickrun = async function(id){
 
   await db.collection('dispatch_pickruns').doc(id).update({
     archived:true
   });
 }
 
-async function restorePickrun(id){
+window.restorePickrun = async function(id){
 
   await db.collection('dispatch_pickruns').doc(id).update({
     archived:false
   });
 }
 
-async function deleteForever(id){
+
+window.updateField = async function(id,field,value){
+
+  await db.collection('dispatch_pickruns').doc(id).update({
+    [field]: value
+  });
+}
+
+window.deleteForever = async function(id){
 
   const confirmed = confirm('Delete permanently?');
 
