@@ -375,6 +375,16 @@ FY Loading...
 </div>
 </div>
 
+<div class="metric-card">
+<h3>Most Qty Despatched In A Day</h3>
+<p id="bestDayQty">0</p>
+</div>
+
+<div class="metric-card">
+<h3>Average Daily Despatch</h3>
+<p id="avgDailyQty">0</p>
+</div>
+
 </div>
 
 <div class="form-section">
@@ -563,6 +573,8 @@ db.collection('dispatch_pickruns').onSnapshot(snapshot=>{
   let archivedCompletedCount = 0;
   let archivedDiscrepancies = 0;
 
+  let dailyTotals = {};
+
   const now = new Date();
 
   const currentMonth = now.getMonth();
@@ -709,6 +721,15 @@ ${data.discrepancies}
         if(completedDate >= fyStart){
           financialYearTotal += Number(data.qty || 0);
         }
+
+        const dayKey = completedDate.toISOString().split('T')[0];
+
+        if(!dailyTotals[dayKey]){
+          dailyTotals[dayKey] = 0;
+        }
+
+        dailyTotals[dayKey] += Number(data.qty || 0);
+
       }
 
       archive.innerHTML += `
@@ -810,6 +831,29 @@ ${data.discrepancies}
 
   document.getElementById('financialYearLabel').innerText =
     'FY ' + fyYear;
+
+  let bestDayQty = 0;
+  let totalDailyQty = 0;
+  let totalDays = 0;
+
+  Object.values(dailyTotals).forEach(qty => {
+
+    totalDailyQty += qty;
+    totalDays++;
+
+    if(qty > bestDayQty){
+      bestDayQty = qty;
+    }
+
+  });
+
+  document.getElementById('bestDayQty').innerText =
+    bestDayQty.toLocaleString();
+
+  document.getElementById('avgDailyQty').innerText =
+    totalDays > 0
+    ? Math.round(totalDailyQty / totalDays).toLocaleString()
+    : 0;
 
   document.getElementById('fyWeekDisplay').innerHTML =
     'FY ' + fyYear + '<br>Week ' + weekDiff;
