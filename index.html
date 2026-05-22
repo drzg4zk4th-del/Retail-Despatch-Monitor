@@ -19,32 +19,34 @@
 
 body{
   background:#fff5f7;
-  display:flex;
   min-height:100vh;
   color:#4b1d33;
 }
 
 .sidebar{
-  position:relative;
-  width:250px;
+  width:100%;
   background:#d98ca3;
   color:white;
-  padding:20px;
-  transition:0.3s;
+  padding:15px 20px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
 }
 
 .sidebar.collapsed{
-  width:70px;
+  width:100%;
 }
 
 .sidebar h2{
-  margin-bottom:25px;
+  margin:0 20px 0 0;
+  white-space:nowrap;
 }
 
 .sidebar button{
-  width:100%;
-  padding:12px;
-  margin-bottom:10px;
+  width:auto;
+  padding:12px 18px;
+  margin-bottom:0;
   border:none;
   border-radius:10px;
   background:#c56f8d;
@@ -72,12 +74,7 @@ body{
 }
 
 .toggle-btn{
-  background:#d98ca3;
-  color:white;
-  border:none;
-  padding:10px 15px;
-  border-radius:10px;
-  cursor:pointer;
+  display:none;
 }
 
 .metrics{
@@ -207,6 +204,53 @@ tr:hover{
   font-weight:bold;
 }
 
+
+@media(max-width:900px){
+
+  body{
+    flex-direction:column;
+  }
+
+  .main{
+    padding:10px;
+  }
+
+  .metrics{
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+
+  .metric-card{
+    padding:14px;
+  }
+
+  .metric-card p{
+    font-size:22px;
+  }
+
+  table{
+    min-width:1400px;
+    font-size:13px;
+  }
+
+  th,td{
+    padding:10px;
+  }
+
+  .form-grid{
+    grid-template-columns:1fr;
+  }
+
+  input,select{
+    font-size:16px;
+  }
+
+  h1{
+    font-size:24px;
+  }
+
+}
+
 </style>
 </head>
 
@@ -222,10 +266,7 @@ tr:hover{
 
 
 <div style="
-position:absolute;
-bottom:20px;
-left:20px;
-right:20px;
+margin-left:auto;
 background:#c56f8d;
 padding:12px;
 border-radius:12px;
@@ -242,8 +283,6 @@ box-shadow:0 2px 8px rgba(0,0,0,0.15);
 <div class="main">
 
 <div class="topbar">
-
-<button class="toggle-btn" onclick="toggleSidebar()">☰</button>
 
 <h1>Retail Despatch Progress Monitor</h1>
 
