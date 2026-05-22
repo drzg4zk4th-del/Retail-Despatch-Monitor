@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dispatch Pickruns Dashboard</title>
+<title>Retail Despatch Progress Monitor</title>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -227,7 +227,7 @@ tr:hover{
 
 <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
 
-<h1>Dispatch Pickruns Dashboard</h1>
+<h1>Retail Despatch Progress Monitor</h1>
 
 </div>
 
@@ -279,6 +279,9 @@ tr:hover{
 <div class="metric-card">
 <h3>Current Financial Year Total</h3>
 <p id="financialYearTotal">0</p>
+<div style="margin-top:8px;font-size:13px;color:#8b4b63;" id="financialYearLabel">
+FY Loading...
+</div>
 </div>
 
 </div>
@@ -455,6 +458,13 @@ db.collection('dispatch_pickruns').onSnapshot(snapshot=>{
   const currentMonth = now.getMonth();
   const currentYear = now.getFullYear();
 
+
+  const fyYear =
+    currentMonth >= 6
+    ? currentYear + '-' + String(currentYear + 1).slice(-2)
+    : (currentYear - 1) + '-' + String(currentYear).slice(-2);
+
+
   const fyStart =
     currentMonth >= 6
     ? new Date(currentYear,6,1)
@@ -623,6 +633,11 @@ ${formatDate(data.dateCreated)}
 
   document.getElementById('financialYearTotal').innerText =
     financialYearTotal.toLocaleString();
+
+
+  document.getElementById('financialYearLabel').innerText =
+    'FY ' + fyYear;
+
 
 
 });
