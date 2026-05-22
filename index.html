@@ -246,8 +246,19 @@ tr:hover{
   }
 
   h1{
-    font-size:24px;
+    font-size:20px !important;
+    line-height:1.2;
   }
+
+}
+
+
+@media(max-width:900px){
+
+.sidebar h1{
+font-size:24px !important;
+line-height:1.2;
+}
 
 }
 
@@ -258,7 +269,34 @@ tr:hover{
 
 <div class="sidebar" id="sidebar">
 
-<h2>Dispatch</h2>
+<div style="
+width:100%;
+background:#b85c7d;
+padding:20px;
+border-radius:16px;
+margin-bottom:15px;
+text-align:center;
+box-shadow:0 3px 10px rgba(0,0,0,0.15);
+">
+
+<h1 style="
+margin:0;
+font-size:34px;
+color:white;
+letter-spacing:1px;
+">
+Retail Despatch Progress Monitor
+</h1>
+
+<div style="
+margin-top:8px;
+font-size:15px;
+color:#ffe7ef;
+">
+Live Retail Pickrun Tracking & Performance
+</div>
+
+</div>
 
 <button type="button" onclick="showPage('mainPage')">Main Dashboard</button>
 
@@ -282,11 +320,7 @@ box-shadow:0 2px 8px rgba(0,0,0,0.15);
 
 <div class="main">
 
-<div class="topbar">
 
-<h1>Retail Despatch Progress Monitor</h1>
-
-</div>
 
 <div id="mainPage">
 
