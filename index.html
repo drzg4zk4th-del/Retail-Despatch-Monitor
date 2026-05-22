@@ -25,6 +25,7 @@ body{
 }
 
 .sidebar{
+  position:relative;
   width:250px;
   background:#d98ca3;
   color:white;
@@ -218,6 +219,23 @@ tr:hover{
 <button type="button" onclick="showPage('mainPage')">Main Dashboard</button>
 
 <button type="button" onclick="showPage('archivePage')">Archive</button>
+
+
+<div style="
+position:absolute;
+bottom:20px;
+left:20px;
+right:20px;
+background:#c56f8d;
+padding:12px;
+border-radius:12px;
+font-size:14px;
+line-height:1.5;
+box-shadow:0 2px 8px rgba(0,0,0,0.15);
+">
+<div style="font-weight:bold;">Financial Year Progress</div>
+<div id="fyWeekDisplay">Loading...</div>
+</div>
 
 </div>
 
@@ -464,6 +482,14 @@ db.collection('dispatch_pickruns').onSnapshot(snapshot=>{
     ? currentYear + '-' + String(currentYear + 1).slice(-2)
     : (currentYear - 1) + '-' + String(currentYear).slice(-2);
 
+  const fyStartDate =
+    currentMonth >= 6
+    ? new Date(currentYear,6,1)
+    : new Date(currentYear-1,6,1);
+
+  const weekDiff =
+    Math.floor((now - fyStartDate)/(1000*60*60*24*7)) + 1;
+
 
   const fyStart =
     currentMonth >= 6
@@ -637,6 +663,9 @@ ${formatDate(data.dateCreated)}
 
   document.getElementById('financialYearLabel').innerText =
     'FY ' + fyYear;
+
+  document.getElementById('fyWeekDisplay').innerHTML =
+    'FY ' + fyYear + '<br>Week ' + weekDiff;
 
 
 
