@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dispatch Pickruns Dashboard</title>
+
+<style>
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  background:#fff5f7;
+  display:flex;
+  min-height:100vh;
+  color:#4b1d33;
+}
+
+.sidebar{
+  width:250px;
+  background:#d98ca3;
+  color:white;
+  padding:20px;
+  transition:0.3s;
+  box-shadow:2px 0 10px rgba(0,0,0,0.1);
+}
+
+.sidebar.collapsed{
+  width:70px;
+}
+
+.sidebar h2{
+  margin-bottom:25px;
+  font-size:24px;
+}
+
+.sidebar button{
+  width:100%;
+  padding:12px;
+  margin-bottom:10px;
+  border:none;
+  border-radius:10px;
+  background:#c56f8d;
+  color:white;
+  cursor:pointer;
+  text-align:left;
+  transition:0.2s;
+  font-weight:bold;
+}
+
+.sidebar button:hover{
+  background:#b95f7f;
+}
+
+.main{
+  flex:1;
+  padding:20px;
+  overflow-x:auto;
+}
+
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:25px;
+}
+
+.topbar h1{
+  color:#9b4d6d;
+}
+
+.toggle-btn{
+  background:#d98ca3;
+  color:white;
+  border:none;
+  padding:10px 15px;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:18px;
+}
+
+.metrics{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:18px;
+  margin-bottom:25px;
+}
+
+.metric-card{
+  background:white;
+  border-radius:16px;
+  padding:22px;
+  box-shadow:0 3px 10px rgba(217,140,163,0.2);
+  border-left:6px solid #d98ca3;
+}
+
+.metric-card h3{
+  font-size:14px;
+  margin-bottom:10px;
+  color:#8b4b63;
+}
+
+.metric-card p{
+  font-size:30px;
+  font-weight:bold;
+  color:#b14f74;
+}
+
+.form-section{
+  background:white;
+  border-radius:16px;
+  padding:20px;
+  margin-bottom:25px;
+  box-shadow:0 3px 10px rgba(217,140,163,0.15);
+}
+
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:12px;
+}
+
+input,select{
+  padding:12px;
+  border-radius:10px;
+  border:1px solid #efc6d2;
+  background:#fffafb;
+}
+
+input:focus,select:focus{
+  outline:none;
+  border-color:#d98ca3;
+}
+
+.add-btn{
+  margin-top:15px;
+  padding:12px 22px;
+  border:none;
+  border-radius:10px;
+  background:#d98ca3;
+  color:white;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+.add-btn:hover{
+  background:#c56f8d;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  background:white;
+  border-radius:16px;
+  overflow:hidden;
+  box-shadow:0 3px 10px rgba(217,140,163,0.15);
+}
+
+th,td{
+  padding:14px;
+  text-align:left;
+  border-bottom:1px solid #f3d6df;
+}
+
+th{
+  background:#d98ca3;
+  color:white;
+}
+
+tr:hover{
+  background:#fff5f7;
+}
+
+.hidden{
+  display:none;
+}
+
+.delete-btn{
+  background:#e0527d;
+  color:white;
+  border:none;
+  padding:8px 12px;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.restore-btn{
+  background:#b56aa0;
+  color:white;
+  border:none;
+  padding:8px 12px;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.status-high{
+  color:#d62856;
+  font-weight:bold;
+}
+
+.status-medium{
+  color:#d97706;
+  font-weight:bold;
+}
+
+.status-low{
+  color:#2e8b57;
+  font-weight:bold;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="sidebar" id="sidebar">
+
+  <h2>Dispatch</h2>
+
+  <button onclick="showPage('mainPage')">Main Dashboard</button>
+
+  <button onclick="showPage('archivePage')">Archive</button>
+
+</div>
+
+<div class="main">
+
+  <div class="topbar">
+
+    <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+
+    <h1>Dispatch Pickruns Dashboard</h1>
+
+  </div>
+
+  <div id="mainPage">
+
+    <div class="metrics">
+
+      <div class="metric-card">
+        <h3>Total Units To Be Despatched</h3>
+        <p>0</p>
+      </div>
+
+      <div class="metric-card">
+        <h3>Total Pickruns</h3>
+        <p>0</p>
+      </div>
+
+      <div class="metric-card">
+        <h3>Oldest Pickrun</h3>
+        <p>0 Days</p>
+      </div>
+
+      <div class="metric-card">
+        <h3>Average Discrepancies Left</h3>
+        <p>0</p>
+      </div>
+
+      <div class="metric-card">
+        <h3>Average Completion Time</h3>
+        <p>0 Days</p>
+      </div>
+
+    </div>
+
+    <div class="form-section">
+
+      <div class="form-grid">
+
+        <input type="text" placeholder="Pickrun Number">
+
+        <input type="text" placeholder="Description">
+
+        <input type="number" placeholder="Qty">
+
+        <select>
+          <option>Low</option>
+          <option>Medium</option>
+          <option>High</option>
+        </select>
+
+        <input type="number" placeholder="Discrepancies Left Qty">
+
+      </div>
+
+      <button class="add-btn">Add Pickrun</button>
+
+    </div>
+
+    <table>
+
+      <thead>
+
+        <tr>
+          <th>Pickrun Number</th>
+          <th>Description</th>
+          <th>Qty</th>
+          <th>Urgency</th>
+          <th>Date Created</th>
+          <th>Printed</th>
+          <th>Completed</th>
+          <th>Discrepancies Left Qty</th>
+          <th>Date Completed</th>
+          <th>Delete</th>
+        </tr>
+
+      </thead>
+
+      <tbody>
+
+        <tr>
+          <td>PR001</td>
+          <td>Bondi Restock</td>
+          <td>220</td>
+          <td class="status-high">High</td>
+          <td>22/05/2026</td>
+          <td><input type="checkbox"></td>
+          <td><input type="checkbox"></td>
+          <td>4</td>
+          <td>-</td>
+          <td><button class="delete-btn">Delete</button></td>
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+  <div id="archivePage" class="hidden">
+
+    <h2 style="margin-bottom:20px;color:#9b4d6d;">Archived Pickruns</h2>
+
+    <table>
+
+      <thead>
+
+        <tr>
+          <th>Pickrun Number</th>
+          <th>Description</th>
+          <th>Qty</th>
+          <th>Urgency</th>
+          <th>Date Created</th>
+          <th>Date Completed</th>
+          <th>Restore</th>
+          <th>Delete</th>
+        </tr>
+
+      </thead>
+
+      <tbody>
+
+        <tr>
+          <td>PR000</td>
+          <td>Sydney Outlet</td>
+          <td>140</td>
+          <td>Medium</td>
+          <td>18/05/2026</td>
+          <td>20/05/2026</td>
+          <td><button class="restore-btn">Restore</button></td>
+          <td><button class="delete-btn">Delete</button></td>
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</div>
+
+<script>
+
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('collapsed');
+}
+
+function showPage(pageId){
+
+  document.getElementById('mainPage').classList.add('hidden');
+  document.getElementById('archivePage').classList.add('hidden');
+
+  document.getElementById(pageId).classList.remove('hidden');
+}
+
+</script>
+
+</body>
+</html>
