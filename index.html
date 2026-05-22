@@ -393,6 +393,15 @@ FY Loading...
 <option value="High">High</option>
 </select>
 
+<select id="orderType">
+<option value="REPLEN">REPLEN</option>
+<option value="REPEAT">REPEAT</option>
+<option value="TOP UP">TOP UP</option>
+<option value="STORE REQUEST">STORE REQUEST</option>
+<option value="STORE SUPPLIES">STORE SUPPLIES</option>
+<option value="PRE ALERT">PRE ALERT</option>
+</select>
+
 </div>
 
 <button class="add-btn" onclick="addPickrun()">Add Pickrun</button>
@@ -408,6 +417,7 @@ FY Loading...
 <th>Description</th>
 <th>Qty</th>
 <th>Urgency</th>
+<th>Order Type</th>
 <th>Date Created</th>
 <th>Printed</th>
 <th>Completed</th>
@@ -437,6 +447,7 @@ FY Loading...
 <th>Description</th>
 <th>Qty</th>
 <th>Urgency</th>
+<th>Order Type</th>
 <th>Date Created</th>
 <th>Date Completed</th>
 <th>Restore</th>
@@ -486,6 +497,7 @@ async function addPickrun(){
   const description = document.getElementById('description').value;
   const qty = Number(document.getElementById('qty').value);
   const urgency = document.getElementById('urgency').value;
+  const orderType = document.getElementById('orderType').value;
   const discrepancies = 0;
 
   if(!pickrunNumber || !description || !qty){
@@ -498,6 +510,7 @@ async function addPickrun(){
     description,
     qty,
     urgency,
+    orderType,
     discrepancies,
     printed:false,
     completed:false,
@@ -613,26 +626,42 @@ onchange="updateField('${id}','urgency',this.value)">
 <option value="High" ${data.urgency === 'High' ? 'selected' : ''}>High</option>
 </select>
 </td>
-        <td contenteditable='true'
-onblur="updateField('${id}','dateCreated',this.innerText)">
-${formatDate(data.dateCreated)}
+
+<td>
+<select onchange="updateField('${id}','orderType',this.value)">
+<option value="REPLEN" ${data.orderType === 'REPLEN' ? 'selected' : ''}>REPLEN</option>
+<option value="REPEAT" ${data.orderType === 'REPEAT' ? 'selected' : ''}>REPEAT</option>
+<option value="TOP UP" ${data.orderType === 'TOP UP' ? 'selected' : ''}>TOP UP</option>
+<option value="STORE REQUEST" ${data.orderType === 'STORE REQUEST' ? 'selected' : ''}>STORE REQUEST</option>
+<option value="STORE SUPPLIES" ${data.orderType === 'STORE SUPPLIES' ? 'selected' : ''}>STORE SUPPLIES</option>
+<option value="PRE ALERT" ${data.orderType === 'PRE ALERT' ? 'selected' : ''}>PRE ALERT</option>
+</select>
 </td>
 
-        <td>
-          <input type="checkbox"
-          ${data.printed ? 'checked' : ''}
-          onchange="togglePrinted('${id}',this.checked)">
-        </td>
+<td>
+<input type="date"
+value="${data.dateCreated ? new Date(data.dateCreated).toISOString().split('T')[0] : ''}"
+onchange="updateField('${id}','dateCreated',this.value)">
+</td>
 
-        <td>
-          <input type="checkbox"
-          ${data.completed ? 'checked' : ''}
-          onchange="toggleCompleted('${id}',this.checked)">
-        </td>
+<td>
+<input type="checkbox"
+${data.printed ? 'checked' : ''}
+onchange="togglePrinted('${id}',this.checked)">
+</td>
 
-        <td contenteditable='true' onblur="updateField('${id}','discrepancies',this.innerText)">${data.discrepancies}</td>
+<td>
+<input type="checkbox"
+${data.completed ? 'checked' : ''}
+onchange="toggleCompleted('${id}',this.checked)">
+</td>
 
-        <td>${formatDate(data.dateCompleted)}</td>
+<td contenteditable='true'
+onblur="updateField('${id}','discrepancies',this.innerText)">
+${data.discrepancies}
+</td>
+
+<td>${formatDate(data.dateCompleted)}</td>
 
         <td>
           <button class="delete-btn"
@@ -680,7 +709,8 @@ ${formatDate(data.dateCreated)}
       <td contenteditable='true' onblur="updateField('${id}','description',this.innerText)">${data.description}</td>
       <td contenteditable='true' onblur="updateField('${id}','qty',this.innerText)">${data.qty}</td>
       <td>${data.urgency}</td>
-      <td>${formatDate(data.dateCreated)}</td>
+<td>${data.orderType || '-'}</td>
+      
       <td>${formatDate(data.dateCompleted)}</td>
 
       <td>
