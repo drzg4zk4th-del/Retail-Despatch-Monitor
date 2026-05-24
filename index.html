@@ -658,7 +658,7 @@ onchange="updateField('${id}','urgency',this.value)">
 
 <td>
 <input type="date"
-value="${data.dateCreated ? new Date(data.dateCreated).toISOString().split('T')[0] : ''}"
+value="${data.dateCreated ? new Date(data.dateCreated).toLocaleDateString('en-CA') : ''}"
 onchange="updateField('${id}','dateCreated',this.value)">
 </td>
 
