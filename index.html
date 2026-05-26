@@ -206,6 +206,21 @@ tr:hover{
 }
 
 
+
+.viewer-mode .add-btn,
+.viewer-mode .delete-btn,
+.viewer-mode [contenteditable="true"]{
+pointer-events:none;
+opacity:0.6;
+}
+
+.viewer-mode input[type="checkbox"],
+.viewer-mode select{
+pointer-events:none;
+opacity:0.7;
+}
+
+
 @media(max-width:900px){
 
   body{
@@ -302,6 +317,8 @@ Live Retail Pickrun Tracking & Performance
 <button type="button" onclick="showPage('mainPage')">Main Dashboard</button>
 
 <button type="button" onclick="showPage('archivePage')">Archive</button>
+
+<button type="button" onclick="login()">Sign In</button>
 
 <button type="button" onclick="logout()">Sign Out</button>
 
@@ -502,13 +519,25 @@ auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 const provider =
 new firebase.auth.GoogleAuthProvider();
 
-auth.onAuthStateChanged(async user => {
+auth.onAuthStateChanged(user => {
 
 if(user){
 
 console.log("Logged in:", user.email);
 
+document.body.classList.remove("viewer-mode");
+
 }else{
+
+console.log("Viewing as guest");
+
+document.body.classList.add("viewer-mode");
+
+}
+
+});
+
+async function login(){
 
 try{
 
@@ -516,15 +545,13 @@ await auth.signInWithPopup(provider);
 
 }catch(error){
 
-console.error("Login Error:", error);
+console.error(error);
 
-alert("Google sign in failed");
-
-}
+alert("Login failed");
 
 }
 
-});
+}
 
 function logout(){
 
